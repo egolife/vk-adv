@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use Illuminate\Support\Facades\Session;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -13,7 +14,13 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        view()->compose
+        view()->composer('inc.navbar', function ($view) {
+            $view->with([
+              'acc'      => Session::get('vk_acc'),
+              'accounts' => Session::get('accounts')
+
+            ]);
+        });
     }
 
     /**

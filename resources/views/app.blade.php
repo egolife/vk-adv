@@ -16,6 +16,19 @@
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
 {{--<script src=" {{ asset('js/main.js') }} "></script>--}}
 <script>
+  $(function(){
+    $(".js-count").on("input", function(e){
+      var $el = $(this);
+      var maxLength = $el.data('max-length');
+      var val = $el.val();
+      var length = val.length;
+      if(length > maxLength) {
+        $el.val(val.substr(0, maxLength));
+        return;
+      }
+      $(this).closest(".form-group").find(".js-fillable").text(maxLength - length);
+    });
+  });
   $('#myModal').modal('show');
 </script>
 </html>

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Curl;
 use App\VkAds;
 use Illuminate\Http\Request;
 
@@ -31,16 +32,16 @@ class AdvertController extends Controller
         $campaigns = $vkAds->getCampaigns();
 
         return view('vk.adsAll')->with([
-          'acc'                 => $acc,
-          'accounts'            => $vkAds->getAccounts(),
-          'campaigns'           => $campaigns,
-          'ads'                 => $ads,
-          'layouts'             => $layouts,
-          'formats'             => $vkAds->getAdFormats(),
-          'statuses'            => $vkAds->getStatuses(),
-          'moderation_statuses' => $vkAds->getApprovedStatuses(),
-          'platforms'           => $vkAds->getAdPlatforms(),
-          'cost_types'          => $vkAds->getCostTypes()
+        'acc'                 => $acc,
+        'accounts'            => $vkAds->getAccounts(),
+        'campaigns'           => $campaigns,
+        'ads'                 => $ads,
+        'layouts'             => $layouts,
+        'formats'             => $vkAds->getAdFormats(),
+        'statuses'            => $vkAds->getStatuses(),
+        'moderation_statuses' => $vkAds->getApprovedStatuses(),
+        'platforms'           => $vkAds->getAdPlatforms(),
+        'cost_types'          => $vkAds->getCostTypes()
         ]);
     }
 
@@ -51,7 +52,13 @@ class AdvertController extends Controller
      */
     public function create()
     {
-        return view('vk.createAd');
+        $curlCampaigns = new Curl('ads.getCampaigns', ['account_id' => Session::get('vk_acc')]);
+        $curlCategories = new Curl('ads.getCategories');
+
+        return view('vk.createAd')->with([
+        'campaigns'  => $curlCampaigns->lists('name', 'id'),
+        'categories' => $curlCategories->lists('name', 'id')
+        ]);
     }
 
     /**
