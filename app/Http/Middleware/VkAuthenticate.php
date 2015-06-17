@@ -10,15 +10,17 @@ class VkAuthenticate
     /**
      * Handle an incoming request.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \Closure  $next
+     * @param  \Illuminate\Http\Request $request
+     * @param  \Closure $next
      * @return mixed
      */
     public function handle($request, Closure $next)
     {
-      if(!Session::has('vk_token'))
-        return redirect()->route('authorize');
+        //Проверка временная - нужно запрашивать наличие токена у ВК, а не в сессии
+        //поскольку возможна ситуация, когда в сессии токен есть, а для ВК он устарел
+        if (!Session::has('vk_token'))
+            return redirect()->route('authorize');
 
-      return $next($request);
+        return $next($request);
     }
 }

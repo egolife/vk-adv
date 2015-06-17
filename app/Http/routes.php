@@ -11,59 +11,22 @@
 |
 */
 
+// TODO: Проводит серверную авторизацию ВК, вызывается через редирект
 Route::get('/authorize', ['as' => 'authorize', 'uses' => 'VkController@authorize']);
 
-Route::group(['middleware' => 'vk.auth'], function(){
+/**
+ * TODO: Сейчас показывает список кобинетов, в дальнейшем не требуется
+ */
+Route::get('/home', ['as' => 'home', 'uses' => 'VkController@tokenize']);
 
-  Route::get('/', 'VkController@index');
+Route::group(['middleware' => 'vk.auth'], function () {
+
+    Route::get('/', ['as' => 'vk.acc.set', 'uses' => 'VkController@index']);
+    Route::get('/compaigns/{account}', ['as' => 'compaigns', 'uses' => 'VkController@getCompaigns']);
+    Route::get('/set_acc/{acc}', ['as' => 'vk.acc.put', 'uses' => 'VkController@setAcc']);
+    Route::get('/ads/{account}/{compaign}', ['as' => 'ads', 'uses' => 'VkController@getAds']);
+    Route::get('/ads/{account}', ['as' => 'all_ads', 'uses' => 'VkController@getAllAds']);
+//    Route::get('/')
+    Route::controller('other', 'AdsController');
+    Route::resource('ad', 'AdvertController');
 });
-
-
-
-Route::get('/home', function(\Illuminate\Http\Request $request) {
-  if($request->exists('code')){
-    $ch = curl_init();
-
-    curl_setopt($ch, CURLOPT_URL,"https://oauth.vk.com/access_token");
-    curl_setopt($ch, CURLOPT_POST, 1);
-    curl_setopt($ch, CURLOPT_POSTFIELDS,
-          http_build_query([
-            'client_id' => '4955326',
-            'client_secret' => 'fIejfSmEJhbUL6jDuBzM',
-            'code' => $request->get('code'),
-            'redirect_uri' => 'http://vk-adv.dev/home'
-          ]));
-    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
-
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    $vkResponse = json_decode( curl_exec ($ch));
-    curl_close ($ch);
-
-    Session::put('vk_expires', $vkResponse->expires_in );
-    Session::put('vk_token', $vkResponse->access_token );
-    Session::put('vk_userid', $vkResponse->user_id );
-
-  } else{
-    dd('ELSE CASE');
-    return 'запросили страницу home напрямую, вместо редиректа из ВК';
-
-  }
-  return redirect('/');
-});
-
-Route::get('/compaigns/{account}', ['as' => 'compaigns', 'uses' => function($acc){
-  $ch = curl_init();
-  curl_setopt($ch, CURLOPT_URL,"https://api.vk.com/method/ads.getCampaigns");
-  curl_setopt($ch, CURLOPT_POST, 1);
-  curl_setopt($ch, CURLOPT_POSTFIELDS,
-    http_build_query([
-      'v' => 5.34,
-      'access_token' => Session::get('vk_token'),
-      'account_id' => $acc
-    ]));
-  curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
-  curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-  $res = json_decode( curl_exec ($ch));
-  curl_close ($ch);
-  return $res->response;
-}]);

@@ -1,9 +1,13 @@
-<h1 class="page-header">Рекламные кабинеты</h1>
-<ul>
-@foreach($res as $acc)
-  <li>
-    {!! link_to_route('compaigns', "$acc->account_id {$acc->access_role}", $acc->account_id) !!}
-  </li>
-@endforeach
+@extends('app')
 
-</ul>
+@section('content')
+  <h1 class="page-header">Рекламные кабинеты</h1>
+  <ul>
+  @foreach($accounts as $item)
+    <li>
+      {!! link_to_route('vk.acc.put', "$item->account_id {$item->access_role}", $item->account_id) !!}
+    </li>
+  @endforeach
+
+  </ul>
+@stop

@@ -30,5 +30,6 @@ class Kernel extends HttpKernel
         'auth.basic' => \Illuminate\Auth\Middleware\AuthenticateWithBasicAuth::class,
         'guest' => \App\Http\Middleware\RedirectIfAuthenticated::class,
         'vk.auth' => \App\Http\Middleware\VkAuthenticate::class,
+        'vk.acc' => \App\Http\Middleware\VkSetAcc::class,
     ];
 }

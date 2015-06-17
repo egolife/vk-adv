@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\Session;
 class Curl {
 
   protected $ch = null;
-  protected $url = 'https://api.vk.com/method/ads';
+  protected $url = 'https://api.vk.com/method/';
   protected $defaults = [
     CURLOPT_POST            => 1,
     CURLOPT_POSTFIELDS      => null,
@@ -24,13 +24,13 @@ class Curl {
   ];
   protected $defaultFields = [
     'v' => 5.34,
-    'access_token' => null
   ];
   protected $options;
   protected $results;
 
-  public function __construct($method, Array $fields = [], Array $options = []) {
-    $this->url .= '.' . $method . '?';
+  public function __construct($method, Array $fields = [], Array $options = [], $url = null, $assoc = false) {
+    if($url) $this->url = $url;
+    $this->url .= $method;
 
     $this->ch = curl_init($this->url);
     if(!$this->ch)
@@ -43,10 +43,13 @@ class Curl {
 
     if( !curl_setopt_array($this->ch, $this->options) )
       throw new Exception('Curl options setting failed!');
+    $this->results = json_decode( curl_exec($this->ch), $assoc );
 
-    $this->results = json_decode( curl_exec($this->ch) );
     if(!$this->results)
       throw new Exception('Curl exec failed');
+
+    if(isset($this->results->error))
+      throw new Exception($this->results->error->error_code . ': ' . $this->results->error->error_msg, $this->results->error->error_code);
 
     curl_close($this->ch);
   }
