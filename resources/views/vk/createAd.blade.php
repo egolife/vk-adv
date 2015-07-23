@@ -1,5 +1,33 @@
 @extends('app')
 
+@section('css')
+<style>
+  #upload{
+    margin:10px 30px; padding:10px;
+    font-weight:bold; font-size:12px;
+    font-family:Arial, Helvetica, sans-serif;
+    text-align:center;
+    background:#f2f2f2;
+    color:#3366cc;
+    border:1px solid #ccc;
+    width:140px;
+    cursor:pointer !important;
+    -moz-border-radius:5px; -webkit-border-radius:5px;
+  }
+  .darkbg{
+    background:#ddd !important;
+  }
+  #status{
+    font-family:Arial; padding:5px;
+  }
+  ul#files{ list-style:none; padding:0; margin:0; }
+  ul#files li{ padding:10px; margin-bottom:2px; width:200px; float:left; margin-right:10px;}
+  ul#files li img{  }
+  .success{}
+  .error{ background:#f0c6c3; border:1px solid #cc6622; }
+</style>
+@stop
+
 
 @section('content')
 
@@ -77,7 +105,50 @@
         </div>
       </div>
 
+      <div class="col-sm-offset-4">
+        <div id="upload" ><span>Выбрать файл<span></div><span id="status" ></span>
+      </div>
 
+      <div class="col-sm-12">
+        <ul id="files" ></ul>
+      </div>
+      
     </div>
   </form>
+@stop
+
+@section('js')
+<script src=" {{ asset('js/ajaxupload.3.5.js') }} "></script>
+<script type="text/javascript" >
+  $(function(){
+    var btnUpload=$('#upload');
+    var status=$('#status');
+    new AjaxUpload(btnUpload, {
+      action: '/upload-img',
+      name: 'uploadfile',
+      onSubmit: function(file, ext){
+         if (! (ext && /^(jpg|jpeg)$/.test(ext))){ 
+                    // extension is not allowed 
+          status.text('Поддерживаемые форматы JPG, PNG или GIF');
+          return false;
+        }
+        status.text('Загрузка...');
+      },
+      onComplete: function(file, response){
+        //On completion clear the status
+        status.text('');
+        btnUpload.hide();
+        //Add uploaded file to list
+        if(response==="success"){
+          $('<li></li>').appendTo('#files').html('<img class="img-rosponsive" src="/img/img.jpg" alt="" /><br />' + file).addClass('success');
+
+        } else{
+          $('<li></li>').appendTo('#files').text('Файл не загружен ' + file).addClass('error');
+        }
+      }
+    });
+    
+  });
+</script>
+
 @stop
